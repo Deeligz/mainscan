@@ -21,7 +21,6 @@ export default function Home() {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [barcodeToProcess, setBarcodeToProcess] = useState<string | null>(null);
   // Uncomment state setter and refs
-  const [stream, setStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null); // State for camera errors
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -85,6 +84,8 @@ export default function Home() {
   
   // Effect to MANAGE camera stream based ONLY on isCameraOpen
   useEffect(() => {
+    // Capture videoRef.current at the start of the effect
+    const videoElement = videoRef.current;
     let currentStream: MediaStream | null = null; // Local variable for the stream
 
     if (isCameraOpen) {
@@ -97,9 +98,8 @@ export default function Home() {
               video: { facingMode: "environment" } 
             });
             currentStream = mediaStream; // Assign to local variable
-            setStream(mediaStream); // Also update state if needed elsewhere (maybe not)
-            if (videoRef.current) {
-              videoRef.current.srcObject = mediaStream;
+            if (videoElement) { // Use captured ref value
+              videoElement.srcObject = mediaStream;
               console.log("Effect: Camera stream started and attached.");
             }
           } catch (err) {
@@ -122,10 +122,8 @@ export default function Home() {
         currentStream.getTracks().forEach(track => track.stop());
         console.log("Effect Cleanup: Stream tracks stopped.");
       }
-      // Clear state potentially set by the start logic
-      setStream(null); 
-      if (videoRef.current) {
-          videoRef.current.srcObject = null;
+      if (videoElement) { // Use captured ref value in cleanup
+          videoElement.srcObject = null;
       }
     };
   }, [isCameraOpen]); // *** ONLY depend on isCameraOpen ***
