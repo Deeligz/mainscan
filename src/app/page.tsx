@@ -71,8 +71,10 @@ export default function Home() {
       } else {
           setError("An unknown error occurred while accessing the camera.");
       }
-      setIsCameraOpen(false); // Close if camera failed to start
-      setBarcodeToProcess(null);
+      // REMOVED: Don't automatically close the modal on error
+      // setIsCameraOpen(false); 
+      // setBarcodeToProcess(null);
+      // Keep barcodeToProcess so user knows what scan failed
     }
   };
 
