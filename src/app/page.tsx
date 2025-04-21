@@ -13,60 +13,106 @@ interface ScannedItem {
 
 export default function Home() {
   const [scannedData, setScannedData] = useState("");
-  // Update scannedItems state to use the new structure
   const [scannedItems, setScannedItems] = useState<ScannedItem[]>([]); 
   const inputRef = useRef<HTMLInputElement>(null);
   
-  // New state for camera flow - temporarily commented out until used
-  // const [isCameraOpen, setIsCameraOpen] = useState(false);
-  // const [barcodeToProcess, setBarcodeToProcess] = useState<string | null>(null);
-  // const [stream, setStream] = useState<MediaStream | null>(null);
-  // Refs for camera elements (will be added later)
-  // const videoRef = useRef<HTMLVideoElement>(null);
-  // const canvasRef = useRef<HTMLCanvasElement>(null);
+  // --- Camera State & Refs --- 
+  // Uncommented camera state
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [barcodeToProcess, setBarcodeToProcess] = useState<string | null>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const [error, setError] = useState<string | null>(null); // State for camera errors
+  // Add refs for video and canvas
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  // ---------------------------
 
   // Effect for initial focus
   useEffect(() => {
-    // Keep focus logic simple for now
-    inputRef.current?.focus();
-  }, []); // Run only once on mount
+    if (!isCameraOpen) { // Only focus if camera isn't trying to open
+       inputRef.current?.focus();
+    }
+  }, [isCameraOpen]);
 
-  // REVERTED effect to add scan to list and clear with delay
+  // Effect to handle scan and trigger camera opening
   useEffect(() => {
     if (scannedData) {
-      const currentScan = scannedData;
-      console.log("Scan detected:", currentScan);
-
-      // Add item to list (now as an object, image is null initially)
-      setScannedItems(prevItems => [{ barcode: currentScan, image: null }, ...prevItems]);
-
-      // Set a timer to clear the input field
-      const timer = setTimeout(() => {
-        setScannedData("");
-      }, 200); // Keep the delay
-
-      // Cleanup timer
-      return () => clearTimeout(timer);
+      console.log("Scan detected, preparing camera for:", scannedData);
+      // Store the barcode
+      setBarcodeToProcess(scannedData);
+      // Trigger camera UI to open
+      setIsCameraOpen(true); 
+      // Clear the input field immediately
+      setScannedData(""); 
+      setError(null); // Clear previous errors
     }
   }, [scannedData]);
 
-  // Handler to clear the scanned items list (logic is the same)
+  // --- Camera Control Functions (Initial Implementation) ---
+  const startCamera = async () => {
+    console.log("Attempting to start camera...");
+    // TODO: Implement getUserMedia logic
+    alert("Camera feature not fully implemented yet."); // Placeholder feedback
+    // For now, let's immediately cancel to avoid getting stuck
+    handleCancel(); 
+  };
+
+  const stopCamera = () => {
+    console.log("Stopping camera...");
+    // TODO: Implement stream track stopping logic
+  };
+
+  const handleCapture = () => {
+    console.log("Capturing image...");
+    // TODO: Implement canvas drawing and data URL generation
+    alert("Capture feature not fully implemented yet."); // Placeholder feedback
+    // For now, add item with null image and cancel
+    if (barcodeToProcess) {
+       setScannedItems(prevItems => [{ barcode: barcodeToProcess, image: null }, ...prevItems]);
+    }
+    handleCancel(); 
+  };
+
+  const handleCancel = () => {
+    console.log("Canceling camera...");
+    stopCamera(); // Call stopCamera logic
+    setIsCameraOpen(false); // Close the (future) modal
+    setBarcodeToProcess(null); // Clear the temporary barcode
+    setError(null);
+    // Refocus input after closing camera
+    inputRef.current?.focus(); 
+  };
+  // -------------------------------------------------------
+
+  // Effect to start/stop camera when isCameraOpen changes
+  useEffect(() => {
+    if (isCameraOpen) {
+      startCamera();
+    }
+    // Cleanup function to stop camera if component unmounts while open
+    // Or if isCameraOpen becomes false before startCamera finishes/is cancelled
+    return () => {
+      if (stream) { // Check if stream exists before stopping
+        stopCamera();
+      }
+    };
+  }, [isCameraOpen]); // Run when isCameraOpen changes
+
+
+  // --- Handlers for Submit/Clear (no changes needed here) ---
   const handleClearList = () => {
     setScannedItems([]);
   };
 
-  // Handler for submitting the list (updated console log)
   const handleSubmit = () => {
     if (scannedItems.length === 0) {
       console.log("No items to submit.");
       return;
     }
-    // Log the array of objects
     console.log("Submitting items:", scannedItems);
     // TODO: Implement actual submission logic
   };
-
-  // ... Camera handling functions (startCamera, handleCapture, handleCancel) will be added here ...
+  // ---------------------------------------------------------
 
   return (
     <div className={styles.page}>
@@ -79,10 +125,21 @@ export default function Home() {
           onChange={(e) => setScannedData(e.target.value)}
           placeholder="Scan barcode here..."
           className={styles.scanInput}
+          disabled={isCameraOpen} // Disable input while camera intends to be open
         />
 
-        {/* TODO: Add Camera Modal/View here, conditionally rendered based on isCameraOpen */}
-        {/* Example: {isCameraOpen && <CameraView onCapture={handleCapture} onCancel={handleCancel} />} */}
+        {/* Placeholder for where the camera modal will render */}
+        {/* We will add the actual modal structure in the next step */}
+        {isCameraOpen && (
+           <div style={{ marginTop: '20px', padding: '20px', border: '1px solid red', background: 'lightyellow' }}>
+              <p>Camera UI Placeholder (Not Implemented Yet)</p>
+              <p>Processing: {barcodeToProcess}</p>
+              {/* Add placeholder buttons to test handlers */} 
+              <button onClick={handleCapture} style={{marginRight: '10px'}}>Capture (Not Implemented)</button>
+              <button onClick={handleCancel}>Cancel</button>
+              {error && <p style={{color: 'red'}}>Error: {error}</p>}
+           </div>
+        )}
 
         <div className={styles.scanListContainer}>
           <h3>Scanned Items:</h3>
