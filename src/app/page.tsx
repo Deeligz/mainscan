@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 // Removed unused Image import
 // import Image from "next/image"; 
 import styles from "./page.module.css";
@@ -48,19 +48,39 @@ export default function Home() {
     }
   }, [scannedData]);
 
-  // --- Camera Control Functions (Implemented) ---
-  const startCamera = async () => {
+  // --- Camera Control Functions (Wrapped in useCallback) ---
+  
+  // Need to define stopCamera before startCamera/handleCancel if it's used inside them
+  const stopCamera = useCallback(() => {
+    if (stream) {
+      console.log("Stopping camera stream...");
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+      if (videoRef.current) {
+          videoRef.current.srcObject = null;
+      }
+    }
+  }, [stream]); // Dependency: stream
+
+  const handleCancel = useCallback(() => {
+    console.log("Canceling camera...");
+    stopCamera(); // Call memoized stopCamera
+    setIsCameraOpen(false);
+    setBarcodeToProcess(null);
+    setError(null);
+    inputRef.current?.focus(); 
+  }, [stopCamera]); // Dependency: stopCamera
+
+  const startCamera = useCallback(async () => {
     console.log("Attempting to start camera...");
     setError(null);
+    // Ensure previous stream is stopped before starting new one
+    stopCamera(); 
     try {
-      // Request video stream
       const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-            facingMode: "environment" // Prioritize rear camera if available
-        } 
+        video: { facingMode: "environment" } 
       });
-      setStream(mediaStream); // Save the stream
-      // Attach stream to video element
+      setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
       }
@@ -71,39 +91,21 @@ export default function Home() {
       } else {
           setError("An unknown error occurred while accessing the camera.");
       }
-      // REMOVED: Don't automatically close the modal on error
-      // setIsCameraOpen(false); 
-      // setBarcodeToProcess(null);
-      // Keep barcodeToProcess so user knows what scan failed
+      // Keep modal open to show error, user must click cancel
     }
-  };
+  }, [stopCamera]); // Dependency: stopCamera (to ensure it stops previous stream)
 
-  const stopCamera = () => {
-    if (stream) {
-      console.log("Stopping camera stream...");
-      stream.getTracks().forEach(track => track.stop()); // Stop all tracks
-      setStream(null); // Clear the stream state
-      // Detach stream from video element
-      if (videoRef.current) {
-          videoRef.current.srcObject = null;
-      }
-    }
-  };
-
-  const handleCapture = () => {
+  const handleCapture = useCallback(() => {
     console.log("Capturing image...");
     if (!videoRef.current || !canvasRef.current || !barcodeToProcess) {
         console.error("Capture failed: refs or barcode missing");
         setError("Capture failed. Please try again.");
         return;
     }
-
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    // Set canvas dimensions to match video feed
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    // Draw current video frame onto canvas
     const context = canvas.getContext('2d');
     if (!context) {
         console.error("Could not get canvas context");
@@ -111,39 +113,27 @@ export default function Home() {
         return;
     }
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    // Get image data URL (e.g., JPEG format)
-    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8); // Adjust quality if needed
-
-    // Add the item with barcode and image data
+    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
     setScannedItems(prevItems => [{ barcode: barcodeToProcess, image: imageDataUrl }, ...prevItems]);
-    
-    // Close camera and cleanup
-    handleCancel(); 
-  };
+    handleCancel(); // Use memoized handleCancel
+  }, [barcodeToProcess, handleCancel]); // Dependencies: barcodeToProcess, handleCancel
 
-  const handleCancel = () => {
-    console.log("Canceling camera...");
-    stopCamera(); // Call stopCamera logic
-    setIsCameraOpen(false); // Close the (future) modal
-    setBarcodeToProcess(null); // Clear the temporary barcode
-    setError(null);
-    inputRef.current?.focus(); 
-  };
   // -------------------------------------------------------
 
   // Effect to start/stop camera when isCameraOpen changes
   useEffect(() => {
     if (isCameraOpen) {
-      startCamera();
+      startCamera(); // Call memoized startCamera
     }
+    // Cleanup function still calls stopCamera directly
     return () => {
-      if (stream) {
+      // Check stream directly as stopCamera dependency might cause issues here
+      if (stream) { 
         stopCamera();
       }
     };
-    // Added startCamera and stream to dependency array to satisfy eslint
-  }, [isCameraOpen, startCamera, stream, stopCamera]); // Added stopCamera as well as it's used in cleanup
-
+    // Dependencies now stable references due to useCallback
+  }, [isCameraOpen, startCamera, stream, stopCamera]); 
 
   // --- Handlers for Submit/Clear (no changes needed here) ---
   const handleClearList = () => {
