@@ -322,7 +322,8 @@ a.secondary {
 .videoFeed {
   width: 100%;
   max-width: 500px; /* Limit video size */
-  height: auto;
+  aspect-ratio: 16 / 9; /* Set common aspect ratio */
+  object-fit: cover; /* Cover the area, might crop slightly */
   border-radius: 4px;
   background-color: #eee; /* Placeholder background */
   margin-bottom: 15px;
