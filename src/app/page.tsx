@@ -1,24 +1,24 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import styles from "./page.module.css";
 
 export default function Home() {
+  const [scannedData, setScannedData] = useState("");
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
+        <h2>Scan Barcode:</h2>
+        <input
+          type="text"
+          value={scannedData}
+          onChange={(e) => setScannedData(e.target.value)}
+          placeholder="Scan barcode here..."
+          className={styles.scanInput}
         />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+        {scannedData && <p>Scanned: {scannedData}</p>}
 
         <div className={styles.ctas}>
           <a
