@@ -27,24 +27,28 @@ export default function Home() {
 
   // Effect for initial focus
   useEffect(() => {
-    // Only focus if camera isn't open, otherwise it might interfere
-    if (!isCameraOpen) {
-       inputRef.current?.focus();
-    }
-  }, [isCameraOpen]); // Re-run when camera opens/closes
+    // Keep focus logic simple for now
+    inputRef.current?.focus();
+  }, []); // Run only once on mount
 
-  // Modified effect to handle scan and trigger camera
+  // REVERTED effect to add scan to list and clear with delay
   useEffect(() => {
     if (scannedData) {
-      console.log("Scan detected:", scannedData);
-      // Store the barcode to process it after image capture - temporarily commented out
-      // setBarcodeToProcess(scannedData);
-      // Open the camera UI
-      setIsCameraOpen(true);
-      // Clear the input field immediately
-      setScannedData(""); 
+      const currentScan = scannedData;
+      console.log("Scan detected:", currentScan);
+
+      // Add item to list (now as an object, image is null initially)
+      setScannedItems(prevItems => [{ barcode: currentScan, image: null }, ...prevItems]);
+
+      // Set a timer to clear the input field
+      const timer = setTimeout(() => {
+        setScannedData("");
+      }, 200); // Keep the delay
+
+      // Cleanup timer
+      return () => clearTimeout(timer);
     }
-  }, [scannedData]); // Dependency remains scannedData
+  }, [scannedData]);
 
   // Handler to clear the scanned items list (logic is the same)
   const handleClearList = () => {
@@ -86,7 +90,7 @@ export default function Home() {
             <p>No items scanned yet.</p>
           ) : (
             <ul className={styles.scanList}>
-              {/* Update this mapping later to show barcode and image */}
+              {/* Mapping already updated for object structure */}
               {scannedItems.map((item, index) => (
                 <li key={index}>{item.barcode} {item.image ? '(has image)' : ''}</li>
               ))}
