@@ -125,15 +125,14 @@ export default function Home() {
     if (isCameraOpen) {
       startCamera(); // Call memoized startCamera
     }
-    // Cleanup function still calls stopCamera directly
+    // Cleanup function is essential for stopping the camera
     return () => {
-      // Check stream directly as stopCamera dependency might cause issues here
-      if (stream) { 
-        stopCamera();
-      }
+      // Always attempt to stop if the effect cleans up while camera was intended to be open
+      // This logic is simplified because stopCamera internally checks if stream exists
+      stopCamera(); 
     };
-    // Dependencies now stable references due to useCallback
-  }, [isCameraOpen, startCamera, stream, stopCamera]); 
+    // Dependencies should only be isCameraOpen and the stable function references
+  }, [isCameraOpen, startCamera, stopCamera]); // REMOVED stream from dependency array
 
   // --- Handlers for Submit/Clear (no changes needed here) ---
   const handleClearList = () => {
