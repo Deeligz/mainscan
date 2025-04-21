@@ -126,12 +126,23 @@ a.secondary {
 
 @media (max-width: 600px) {
   .page {
-    padding: 32px;
+    display: block; /* Override grid display for simple block layout */
+    padding: 32px; /* Keep mobile padding */
     padding-bottom: 80px;
+    /* grid-template-rows, align-items, justify-items, gap no longer apply effectively */
   }
 
   .main {
-    align-items: center;
+    /* No changes needed here, should now center within block .page */
+    /* grid-row-start: 2; No longer needed */
+    padding: 0; /* Remove padding from main, let card handle spacing */
+  }
+
+  /* Adjust card margin for mobile to add space from page edges */
+  .mainCard {
+    margin-top: 20px; /* Add some top margin */
+    margin-bottom: 20px; /* Add some bottom margin */
+    /* margin-left/right: auto still applies for centering */
   }
 
   .main ol {
