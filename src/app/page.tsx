@@ -29,6 +29,23 @@ export default function Home() {
     }
   }, [scannedData]);
 
+  // Handler to clear the scanned items list
+  const handleClearList = () => {
+    setScannedItems([]);
+  };
+
+  // Handler for submitting the list (placeholder for now)
+  const handleSubmit = () => {
+    if (scannedItems.length === 0) {
+      console.log("No items to submit.");
+      return; // Or show a message to the user
+    }
+    console.log("Submitting items:", scannedItems);
+    // TODO: Implement actual submission logic (e.g., API call)
+    // Optionally clear the list after successful submission
+    // setScannedItems([]); 
+  };
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -53,6 +70,24 @@ export default function Home() {
               ))}
             </ul>
           )}
+        </div>
+
+        {/* Add Submit and Clear buttons */} 
+        <div className={styles.actionButtonsContainer}> {/* New container for buttons */} 
+          <button 
+            onClick={handleSubmit}
+            className={`${styles.button} ${styles.submitButton}`} // Add classes for styling
+            disabled={scannedItems.length === 0} // Disable if list is empty
+          >
+            Submit List
+          </button>
+          <button 
+            onClick={handleClearList}
+            className={`${styles.button} ${styles.clearButton}`} // Add classes for styling
+            disabled={scannedItems.length === 0} // Disable if list is empty
+          >
+            Clear List
+          </button>
         </div>
       </main>
     </div>
