@@ -27,73 +27,18 @@ export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   // ---------------------------
 
-  // Effect for initial focus
-  useEffect(() => {
-    if (!isCameraOpen) { // Only focus if camera isn't trying to open
-       inputRef.current?.focus();
-    }
-  }, [isCameraOpen]);
-
-  // Effect to handle scan and trigger camera opening
-  useEffect(() => {
-    if (scannedData) {
-      console.log("Scan detected, preparing camera for:", scannedData);
-      // Store the barcode
-      setBarcodeToProcess(scannedData);
-      // Trigger camera UI to open
-      setIsCameraOpen(true); 
-      // Clear the input field immediately
-      setScannedData(""); 
-      setError(null); // Clear previous errors
-    }
-  }, [scannedData]);
-
-  // --- Camera Control Functions (Wrapped in useCallback) ---
+  // --- Camera Control Functions ---
+  // handleCapture and handleCancel need useCallback because they are passed as props/handlers
+  // stopCamera logic will be moved into useEffect cleanup
   
-  // Need to define stopCamera before startCamera/handleCancel if it's used inside them
-  const stopCamera = useCallback(() => {
-    if (stream) {
-      console.log("Stopping camera stream...");
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-      if (videoRef.current) {
-          videoRef.current.srcObject = null;
-      }
-    }
-  }, [stream]); // Dependency: stream
-
   const handleCancel = useCallback(() => {
     console.log("Canceling camera...");
-    stopCamera(); // Call memoized stopCamera
+    // Stop stream logic is now handled by useEffect cleanup when isCameraOpen becomes false
     setIsCameraOpen(false);
     setBarcodeToProcess(null);
     setError(null);
     inputRef.current?.focus(); 
-  }, [stopCamera]); // Dependency: stopCamera
-
-  const startCamera = useCallback(async () => {
-    console.log("Attempting to start camera...");
-    setError(null);
-    // Ensure previous stream is stopped before starting new one
-    stopCamera(); 
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: "environment" } 
-      });
-      setStream(mediaStream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
-    } catch (err) {
-      console.error("Error accessing camera:", err);
-      if (err instanceof Error) {
-          setError(`Error accessing camera: ${err.name} - ${err.message}`);
-      } else {
-          setError("An unknown error occurred while accessing the camera.");
-      }
-      // Keep modal open to show error, user must click cancel
-    }
-  }, [stopCamera]); // Dependency: stopCamera (to ensure it stops previous stream)
+  }, []); // No external dependencies needed now for core logic
 
   const handleCapture = useCallback(() => {
     console.log("Capturing image...");
@@ -115,24 +60,75 @@ export default function Home() {
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
     setScannedItems(prevItems => [{ barcode: barcodeToProcess, image: imageDataUrl }, ...prevItems]);
-    handleCancel(); // Use memoized handleCancel
+    handleCancel(); // Close modal after capture
   }, [barcodeToProcess, handleCancel]); // Dependencies: barcodeToProcess, handleCancel
 
   // -------------------------------------------------------
 
-  // Effect to start/stop camera when isCameraOpen changes
+  // Effect for initial focus
   useEffect(() => {
-    if (isCameraOpen) {
-      startCamera(); // Call memoized startCamera
+    if (!isCameraOpen) {
+       inputRef.current?.focus();
     }
-    // Cleanup function is essential for stopping the camera
+  }, [isCameraOpen]);
+
+  // Effect to handle scan trigger
+  useEffect(() => {
+    if (scannedData) {
+      console.log("Scan detected, preparing camera for:", scannedData);
+      setBarcodeToProcess(scannedData);
+      setIsCameraOpen(true); 
+      setScannedData(""); 
+      setError(null);
+    }
+  }, [scannedData]);
+  
+  // Effect to MANAGE camera stream based ONLY on isCameraOpen
+  useEffect(() => {
+    let currentStream: MediaStream | null = null; // Local variable for the stream
+
+    if (isCameraOpen) {
+      console.log("Effect: Attempting to start camera...");
+      setError(null);
+      
+      const start = async () => {
+          try {
+            const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+              video: { facingMode: "environment" } 
+            });
+            currentStream = mediaStream; // Assign to local variable
+            setStream(mediaStream); // Also update state if needed elsewhere (maybe not)
+            if (videoRef.current) {
+              videoRef.current.srcObject = mediaStream;
+              console.log("Effect: Camera stream started and attached.");
+            }
+          } catch (err) {
+            console.error("Effect: Error accessing camera:", err);
+            if (err instanceof Error) {
+                setError(`Error accessing camera: ${err.name} - ${err.message}`);
+            } else {
+                setError("An unknown error occurred accessing camera.");
+            }
+            // Keep modal open to show error, user must click cancel
+          }
+      };
+      start(); // Call the async function
+    }
+
+    // Cleanup function: This runs when isCameraOpen becomes false OR component unmounts
     return () => {
-      // Always attempt to stop if the effect cleans up while camera was intended to be open
-      // This logic is simplified because stopCamera internally checks if stream exists
-      stopCamera(); 
+      console.log("Effect Cleanup: Stopping camera stream if active...");
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+        console.log("Effect Cleanup: Stream tracks stopped.");
+      }
+      // Clear state potentially set by the start logic
+      setStream(null); 
+      if (videoRef.current) {
+          videoRef.current.srcObject = null;
+      }
     };
-    // Dependencies should only be isCameraOpen and the stable function references
-  }, [isCameraOpen, startCamera, stopCamera]); // REMOVED stream from dependency array
+  }, [isCameraOpen]); // *** ONLY depend on isCameraOpen ***
 
   // --- Handlers for Submit/Clear (no changes needed here) ---
   const handleClearList = () => {
