@@ -324,6 +324,7 @@ a.secondary {
   max-width: 500px; /* Limit video size */
   aspect-ratio: 16 / 9; /* Set common aspect ratio */
   object-fit: cover; /* Cover the area, might crop slightly */
+  min-height: 200px; /* Add a minimum height */
   border-radius: 4px;
   background-color: #eee; /* Placeholder background */
   margin-bottom: 15px;
