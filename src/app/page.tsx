@@ -6,6 +6,7 @@ import styles from "./page.module.css";
 
 export default function Home() {
   const [scannedData, setScannedData] = useState("");
+  const [scannedItems, setScannedItems] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -14,7 +15,11 @@ export default function Home() {
 
   useEffect(() => {
     if (scannedData) {
-      console.log("Scan detected:", scannedData);
+      const currentScan = scannedData;
+      console.log("Scan detected:", currentScan);
+
+      setScannedItems(prevItems => [currentScan, ...prevItems]);
+
       const timer = setTimeout(() => {
         setScannedData("");
       }, 200);
@@ -35,6 +40,19 @@ export default function Home() {
           placeholder="Scan barcode here..."
           className={styles.scanInput}
         />
+
+        <div className={styles.scanListContainer}>
+          <h3>Scanned Items:</h3>
+          {scannedItems.length === 0 ? (
+            <p>No items scanned yet.</p>
+          ) : (
+            <ul className={styles.scanList}>
+              {scannedItems.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
+          )}
+        </div>
 
         <div className={styles.ctas}>
           <a
