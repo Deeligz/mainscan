@@ -20,11 +20,12 @@ export default function Home() {
   // Uncommented camera state
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [barcodeToProcess, setBarcodeToProcess] = useState<string | null>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
+  // Comment out unused stream state setter for now
+  const [stream, /* setStream */] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null); // State for camera errors
-  // Add refs for video and canvas
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  // Comment out unused refs for now
+  // const videoRef = useRef<HTMLVideoElement>(null);
+  // const canvasRef = useRef<HTMLCanvasElement>(null);
   // ---------------------------
 
   // Effect for initial focus
@@ -53,7 +54,6 @@ export default function Home() {
     console.log("Attempting to start camera...");
     // TODO: Implement getUserMedia logic
     alert("Camera feature not fully implemented yet."); // Placeholder feedback
-    // For now, let's immediately cancel to avoid getting stuck
     handleCancel(); 
   };
 
@@ -75,11 +75,10 @@ export default function Home() {
 
   const handleCancel = () => {
     console.log("Canceling camera...");
-    stopCamera(); // Call stopCamera logic
-    setIsCameraOpen(false); // Close the (future) modal
-    setBarcodeToProcess(null); // Clear the temporary barcode
+    stopCamera();
+    setIsCameraOpen(false);
+    setBarcodeToProcess(null);
     setError(null);
-    // Refocus input after closing camera
     inputRef.current?.focus(); 
   };
   // -------------------------------------------------------
@@ -89,14 +88,13 @@ export default function Home() {
     if (isCameraOpen) {
       startCamera();
     }
-    // Cleanup function to stop camera if component unmounts while open
-    // Or if isCameraOpen becomes false before startCamera finishes/is cancelled
     return () => {
-      if (stream) { // Check if stream exists before stopping
+      if (stream) {
         stopCamera();
       }
     };
-  }, [isCameraOpen]); // Run when isCameraOpen changes
+    // Added startCamera and stream to dependency array to satisfy eslint
+  }, [isCameraOpen, startCamera, stream, stopCamera]); // Added stopCamera as well as it's used in cleanup
 
 
   // --- Handlers for Submit/Clear (no changes needed here) ---
