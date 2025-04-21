@@ -30,8 +30,11 @@
 .main {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
   grid-row-start: 2;
+  width: 100%;
+  max-width: 600px;
+  align-items: center;
 }
 
 .main ol {
@@ -165,4 +168,63 @@ a.secondary {
   .logo {
     filter: invert();
   }
+}
+
+/* Styles for the scan input field */
+.scanInput {
+  font-family: var(--font-sans);
+  padding: 12px 16px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(var(--gray-rgb), 0.2);
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  color: var(--foreground);
+}
+
+.scanInput:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* Styles for the container holding the scan list */
+.scanListContainer {
+  width: 100%;
+  margin-top: 20px;
+  padding: 16px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.scanListContainer h3 {
+  margin-bottom: 12px;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+/* Styles for the scan list itself */
+.scanList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.scanList li {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(var(--gray-rgb), 0.1);
+  font-size: 0.95rem;
+}
+
+.scanList li:last-child {
+  border-bottom: none;
+}
+
+.scanList li:nth-child(odd) {
+  background-color: rgba(var(--gray-rgb), 0.03);
 }
