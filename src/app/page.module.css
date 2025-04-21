@@ -216,9 +216,17 @@ a.secondary {
 }
 
 .scanList li {
+  display: flex;
+  align-items: center;
   padding: 8px 12px;
   border-bottom: 1px solid rgba(var(--gray-rgb), 0.1);
   font-size: 0.95rem;
+}
+
+/* Style for the image within the list item */
+.scanList li img {
+  border-radius: 4px;
+  object-fit: cover;
 }
 
 .scanList li:last-child {
