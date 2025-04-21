@@ -20,12 +20,11 @@ export default function Home() {
   // Uncommented camera state
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [barcodeToProcess, setBarcodeToProcess] = useState<string | null>(null);
-  // Comment out unused stream state setter for now
-  const [stream, /* setStream */] = useState<MediaStream | null>(null);
+  // Uncomment state setter and refs
+  const [stream, setStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null); // State for camera errors
-  // Comment out unused refs for now
-  // const videoRef = useRef<HTMLVideoElement>(null);
-  // const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   // ---------------------------
 
   // Effect for initial focus
@@ -49,35 +48,82 @@ export default function Home() {
     }
   }, [scannedData]);
 
-  // --- Camera Control Functions (Initial Implementation) ---
+  // --- Camera Control Functions (Implemented) ---
   const startCamera = async () => {
     console.log("Attempting to start camera...");
-    // TODO: Implement getUserMedia logic
-    alert("Camera feature not fully implemented yet."); // Placeholder feedback
-    handleCancel(); 
+    setError(null);
+    try {
+      // Request video stream
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+            facingMode: "environment" // Prioritize rear camera if available
+        } 
+      });
+      setStream(mediaStream); // Save the stream
+      // Attach stream to video element
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+    } catch (err) {
+      console.error("Error accessing camera:", err);
+      if (err instanceof Error) {
+          setError(`Error accessing camera: ${err.name} - ${err.message}`);
+      } else {
+          setError("An unknown error occurred while accessing the camera.");
+      }
+      setIsCameraOpen(false); // Close if camera failed to start
+      setBarcodeToProcess(null);
+    }
   };
 
   const stopCamera = () => {
-    console.log("Stopping camera...");
-    // TODO: Implement stream track stopping logic
+    if (stream) {
+      console.log("Stopping camera stream...");
+      stream.getTracks().forEach(track => track.stop()); // Stop all tracks
+      setStream(null); // Clear the stream state
+      // Detach stream from video element
+      if (videoRef.current) {
+          videoRef.current.srcObject = null;
+      }
+    }
   };
 
   const handleCapture = () => {
     console.log("Capturing image...");
-    // TODO: Implement canvas drawing and data URL generation
-    alert("Capture feature not fully implemented yet."); // Placeholder feedback
-    // For now, add item with null image and cancel
-    if (barcodeToProcess) {
-       setScannedItems(prevItems => [{ barcode: barcodeToProcess, image: null }, ...prevItems]);
+    if (!videoRef.current || !canvasRef.current || !barcodeToProcess) {
+        console.error("Capture failed: refs or barcode missing");
+        setError("Capture failed. Please try again.");
+        return;
     }
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    // Set canvas dimensions to match video feed
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    // Draw current video frame onto canvas
+    const context = canvas.getContext('2d');
+    if (!context) {
+        console.error("Could not get canvas context");
+        setError("Failed to process image.");
+        return;
+    }
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    // Get image data URL (e.g., JPEG format)
+    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8); // Adjust quality if needed
+
+    // Add the item with barcode and image data
+    setScannedItems(prevItems => [{ barcode: barcodeToProcess, image: imageDataUrl }, ...prevItems]);
+    
+    // Close camera and cleanup
     handleCancel(); 
   };
 
   const handleCancel = () => {
     console.log("Canceling camera...");
-    stopCamera();
-    setIsCameraOpen(false);
-    setBarcodeToProcess(null);
+    stopCamera(); // Call stopCamera logic
+    setIsCameraOpen(false); // Close the (future) modal
+    setBarcodeToProcess(null); // Clear the temporary barcode
     setError(null);
     inputRef.current?.focus(); 
   };
