@@ -280,5 +280,6 @@ a.secondary {
 @media (max-width: 400px) {
   .actionButtonsContainer {
     flex-direction: column; /* Stack buttons vertically */
+    gap: 12px; /* Explicitly set vertical gap (adjust value as needed) */
   }
 }
