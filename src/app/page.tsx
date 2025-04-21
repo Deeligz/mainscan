@@ -1,17 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import styles from "./page.module.css";
 
 export default function Home() {
   const [scannedData, setScannedData] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   return (
     <div className={styles.page}>
       <main className={styles.main}>
         <h2>Scan Barcode:</h2>
         <input
+          ref={inputRef}
           type="text"
           value={scannedData}
           onChange={(e) => setScannedData(e.target.value)}
