@@ -17,10 +17,10 @@ export default function Home() {
   const [scannedItems, setScannedItems] = useState<ScannedItem[]>([]); 
   const inputRef = useRef<HTMLInputElement>(null);
   
-  // New state for camera flow
+  // New state for camera flow - temporarily commented out until used
   const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [barcodeToProcess, setBarcodeToProcess] = useState<string | null>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
+  // const [barcodeToProcess, setBarcodeToProcess] = useState<string | null>(null);
+  // const [stream, setStream] = useState<MediaStream | null>(null);
   // Refs for camera elements (will be added later)
   // const videoRef = useRef<HTMLVideoElement>(null);
   // const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -37,15 +37,13 @@ export default function Home() {
   useEffect(() => {
     if (scannedData) {
       console.log("Scan detected:", scannedData);
-      // Store the barcode to process it after image capture
-      setBarcodeToProcess(scannedData);
+      // Store the barcode to process it after image capture - temporarily commented out
+      // setBarcodeToProcess(scannedData);
       // Open the camera UI
       setIsCameraOpen(true);
       // Clear the input field immediately
       setScannedData(""); 
-      // Removed the timer and direct add to list logic
     }
-    // We don't need a cleanup function here anymore
   }, [scannedData]); // Dependency remains scannedData
 
   // Handler to clear the scanned items list (logic is the same)
