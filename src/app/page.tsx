@@ -5,46 +5,66 @@ import { useState, useRef, useEffect } from "react";
 // import Image from "next/image"; 
 import styles from "./page.module.css";
 
+// Define the structure for items in the list
+interface ScannedItem {
+  barcode: string;
+  image: string | null; // Store image as base64 data URL or null
+}
+
 export default function Home() {
   const [scannedData, setScannedData] = useState("");
-  const [scannedItems, setScannedItems] = useState<string[]>([]);
+  // Update scannedItems state to use the new structure
+  const [scannedItems, setScannedItems] = useState<ScannedItem[]>([]); 
   const inputRef = useRef<HTMLInputElement>(null);
+  
+  // New state for camera flow
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [barcodeToProcess, setBarcodeToProcess] = useState<string | null>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  // Refs for camera elements (will be added later)
+  // const videoRef = useRef<HTMLVideoElement>(null);
+  // const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  // Effect for initial focus
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    // Only focus if camera isn't open, otherwise it might interfere
+    if (!isCameraOpen) {
+       inputRef.current?.focus();
+    }
+  }, [isCameraOpen]); // Re-run when camera opens/closes
 
+  // Modified effect to handle scan and trigger camera
   useEffect(() => {
     if (scannedData) {
-      const currentScan = scannedData;
-      console.log("Scan detected:", currentScan);
-
-      setScannedItems(prevItems => [currentScan, ...prevItems]);
-
-      const timer = setTimeout(() => {
-        setScannedData("");
-      }, 200);
-
-      return () => clearTimeout(timer);
+      console.log("Scan detected:", scannedData);
+      // Store the barcode to process it after image capture
+      setBarcodeToProcess(scannedData);
+      // Open the camera UI
+      setIsCameraOpen(true);
+      // Clear the input field immediately
+      setScannedData(""); 
+      // Removed the timer and direct add to list logic
     }
-  }, [scannedData]);
+    // We don't need a cleanup function here anymore
+  }, [scannedData]); // Dependency remains scannedData
 
-  // Handler to clear the scanned items list
+  // Handler to clear the scanned items list (logic is the same)
   const handleClearList = () => {
     setScannedItems([]);
   };
 
-  // Handler for submitting the list (placeholder for now)
+  // Handler for submitting the list (updated console log)
   const handleSubmit = () => {
     if (scannedItems.length === 0) {
       console.log("No items to submit.");
-      return; // Or show a message to the user
+      return;
     }
+    // Log the array of objects
     console.log("Submitting items:", scannedItems);
-    // TODO: Implement actual submission logic (e.g., API call)
-    // Optionally clear the list after successful submission
-    // setScannedItems([]); 
+    // TODO: Implement actual submission logic
   };
+
+  // ... Camera handling functions (startCamera, handleCapture, handleCancel) will be added here ...
 
   return (
     <div className={styles.page}>
@@ -59,20 +79,23 @@ export default function Home() {
           className={styles.scanInput}
         />
 
+        {/* TODO: Add Camera Modal/View here, conditionally rendered based on isCameraOpen */}
+        {/* Example: {isCameraOpen && <CameraView onCapture={handleCapture} onCancel={handleCancel} />} */}
+
         <div className={styles.scanListContainer}>
           <h3>Scanned Items:</h3>
           {scannedItems.length === 0 ? (
             <p>No items scanned yet.</p>
           ) : (
             <ul className={styles.scanList}>
+              {/* Update this mapping later to show barcode and image */}
               {scannedItems.map((item, index) => (
-                <li key={index}>{item}</li>
+                <li key={index}>{item.barcode} {item.image ? '(has image)' : ''}</li>
               ))}
             </ul>
           )}
         </div>
 
-        {/* Add Submit and Clear buttons */} 
         <div className={styles.actionButtonsContainer}> {/* New container for buttons */} 
           <button 
             onClick={handleSubmit}
