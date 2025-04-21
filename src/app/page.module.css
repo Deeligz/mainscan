@@ -30,11 +30,10 @@
 .main {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  grid-row-start: 2;
-  width: 100%;
-  max-width: 600px;
+  justify-content: center;
   align-items: center;
+  grid-row-start: 2;
+  padding: 20px;
 }
 
 .main ol {
@@ -364,3 +363,52 @@ a.secondary {
 }
 
 /* --- End Camera Modal Styles --- */
+
+/* --- Main Content Card Styles --- */
+.mainCard {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Take full width of parent (.main) */
+  max-width: 600px; /* Max width */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* Stretch children to fill width */
+  overflow: hidden; /* Ensure header corners are clipped */
+}
+
+.cardHeader {
+  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%); /* Deep blue gradient */
+  color: white;
+  padding: 16px 24px;
+  /* border-top-left-radius: 12px; Inherited from mainCard due to overflow:hidden */
+  /* border-top-right-radius: 12px; Inherited from mainCard due to overflow:hidden */
+}
+
+.cardHeader h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 500;
+}
+
+/* Adjust padding/margins for elements inside the card */
+.mainCard > .scanInput,
+.mainCard > .scanListContainer,
+.mainCard > .actionButtonsContainer {
+  margin-left: 24px; 
+  margin-right: 24px;
+  width: auto; /* Let the card padding handle width */
+}
+
+.mainCard > .scanInput {
+  margin-top: 24px; /* Space below header */
+}
+
+.mainCard > .scanListContainer {
+  margin-top: 20px; /* Keep existing margin */
+}
+
+.mainCard > .actionButtonsContainer {
+  margin-top: 24px; /* Keep existing margin */
+  margin-bottom: 24px; /* Add space at the bottom of the card */
+}

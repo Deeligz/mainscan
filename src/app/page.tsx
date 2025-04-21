@@ -145,81 +145,94 @@ export default function Home() {
 
   return (
     <div className={styles.page}>
-      <main className={styles.main}>
-        <h2>Scan Barcode:</h2>
-        <input
-          ref={inputRef}
-          type="text"
-          value={scannedData}
-          onChange={(e) => setScannedData(e.target.value)}
-          placeholder="Scan barcode here..."
-          className={styles.scanInput}
-          disabled={isCameraOpen} // Disable input while camera is open
-        />
-
-        {/* Replace Placeholder with Actual Camera Modal */}
-        {isCameraOpen && (
-          <div className={styles.cameraOverlay}> {/* Modal backdrop */} 
-            <div className={styles.cameraModal}> {/* Modal container */} 
-              <h3>Scan: {barcodeToProcess}</h3>
-              {/* Video element to display camera stream */} 
-              <video 
-                ref={videoRef} 
-                autoPlay 
-                playsInline 
-                className={styles.videoFeed}
-                // Muted is often recommended for autoplay policies
-                muted 
-              />
-              {/* Hidden canvas for capturing frames */} 
-              <canvas ref={canvasRef} style={{ display: 'none' }} /> 
-              
-              {/* Error display */} 
-              {error && <p className={styles.errorMessage}>Error: {error}</p>}
-              
-              {/* Camera control buttons */} 
-              <div className={styles.cameraControls}>
-                <button onClick={handleCapture} className={`${styles.button} ${styles.captureButton}`}>Capture</button>
-                <button onClick={handleCancel} className={`${styles.button} ${styles.cancelButton}`}>Cancel</button>
+      {/* Keep .main primarily for centering the card */} 
+      <main className={styles.main}> 
+        {/* --- Main Content Card --- */} 
+        <div className={styles.mainCard}> 
+          {/* Card Header with Title */} 
+          <div className={styles.cardHeader}>
+            <h2>Scan Barcode:</h2>
+          </div>
+          
+          {/* Card Body Content */} 
+          {/* Input Field */} 
+          <input
+            ref={inputRef}
+            type="text"
+            value={scannedData}
+            onChange={(e) => setScannedData(e.target.value)}
+            placeholder="Scan barcode here..."
+            className={styles.scanInput} 
+            disabled={isCameraOpen} 
+          />
+  
+          {/* Camera Modal Placeholder/Render (if open) */} 
+          {isCameraOpen && (
+            <div className={styles.cameraOverlay}> {/* Modal backdrop */} 
+              <div className={styles.cameraModal}> {/* Modal container */} 
+                <h3>Scan: {barcodeToProcess}</h3>
+                {/* Video element to display camera stream */} 
+                <video 
+                  ref={videoRef} 
+                  autoPlay 
+                  playsInline 
+                  className={styles.videoFeed}
+                  // Muted is often recommended for autoplay policies
+                  muted 
+                />
+                {/* Hidden canvas for capturing frames */} 
+                <canvas ref={canvasRef} style={{ display: 'none' }} /> 
+                
+                {/* Error display */} 
+                {error && <p className={styles.errorMessage}>Error: {error}</p>}
+                
+                {/* Camera control buttons */} 
+                <div className={styles.cameraControls}>
+                  <button onClick={handleCapture} className={`${styles.button} ${styles.captureButton}`}>Capture</button>
+                  <button onClick={handleCancel} className={`${styles.button} ${styles.cancelButton}`}>Cancel</button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-
-        <div className={styles.scanListContainer}>
-          <h3>Scanned Items:</h3>
-          {scannedItems.length === 0 ? (
-            <p>No items scanned yet.</p>
-          ) : (
-            <ul className={styles.scanList}>
-              {/* Update this mapping later to show barcode and image */}
-              {scannedItems.map((item, index) => (
-                <li key={index}>
-                  <span>{item.barcode}</span>
-                  {/* Add image display later */}
-                  {item.image && <img src={item.image} alt={`Scan ${item.barcode}`} width="50" style={{marginLeft: '10px', verticalAlign: 'middle'}}/>}
-                </li>
-              ))}
-            </ul>
           )}
-        </div>
-
-        <div className={styles.actionButtonsContainer}> {/* New container for buttons */} 
-          <button 
-            onClick={handleSubmit}
-            className={`${styles.button} ${styles.submitButton}`} // Add classes for styling
-            disabled={scannedItems.length === 0} // Disable if list is empty
-          >
-            Submit List
-          </button>
-          <button 
-            onClick={handleClearList}
-            className={`${styles.button} ${styles.clearButton}`} // Add classes for styling
-            disabled={scannedItems.length === 0} // Disable if list is empty
-          >
-            Clear List
-          </button>
-        </div>
+  
+          {/* Scanned Items List */} 
+          <div className={styles.scanListContainer}>
+            <h3>Scanned Items:</h3>
+            {scannedItems.length === 0 ? (
+              <p>No items scanned yet.</p>
+            ) : (
+              <ul className={styles.scanList}>
+                {/* Update this mapping later to show barcode and image */}
+                {scannedItems.map((item, index) => (
+                  <li key={index}>
+                    <span>{item.barcode}</span>
+                    {/* Add image display later */}
+                    {item.image && <img src={item.image} alt={`Scan ${item.barcode}`} width="50" style={{marginLeft: '10px', verticalAlign: 'middle'}}/>}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+  
+          {/* Action Buttons */} 
+          <div className={styles.actionButtonsContainer}>
+            <button 
+              onClick={handleSubmit}
+              className={`${styles.button} ${styles.submitButton}`} // Add classes for styling
+              disabled={scannedItems.length === 0} // Disable if list is empty
+            >
+              Submit List
+            </button>
+            <button 
+              onClick={handleClearList}
+              className={`${styles.button} ${styles.clearButton}`} // Add classes for styling
+              disabled={scannedItems.length === 0} // Disable if list is empty
+            >
+              Clear List
+            </button>
+          </div>
+        </div> 
+        {/* --- End Main Content Card --- */} 
       </main>
     </div>
   );
