@@ -18,7 +18,7 @@ export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
   
   // New state for camera flow - temporarily commented out until used
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  // const [isCameraOpen, setIsCameraOpen] = useState(false);
   // const [barcodeToProcess, setBarcodeToProcess] = useState<string | null>(null);
   // const [stream, setStream] = useState<MediaStream | null>(null);
   // Refs for camera elements (will be added later)
