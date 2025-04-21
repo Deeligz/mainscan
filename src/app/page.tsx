@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import Image from "next/image";
 import styles from "./page.module.css";
 
@@ -12,6 +12,14 @@ export default function Home() {
     inputRef.current?.focus();
   }, []);
 
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      console.log("Scanned Data:", scannedData);
+      setScannedData("");
+    }
+  };
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -21,6 +29,7 @@ export default function Home() {
           type="text"
           value={scannedData}
           onChange={(e) => setScannedData(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="Scan barcode here..."
           className={styles.scanInput}
         />
