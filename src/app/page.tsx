@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
+// Removed unused Image import
+// import Image from "next/image"; 
 import styles from "./page.module.css";
 
 export default function Home() {
