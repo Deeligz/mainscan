@@ -228,3 +228,57 @@ a.secondary {
 .scanList li:nth-child(odd) {
   background-color: rgba(var(--gray-rgb), 0.03);
 }
+
+/* Container for action buttons */
+.actionButtonsContainer {
+  display: flex;
+  justify-content: space-between; /* Space out buttons */
+  width: 100%;
+  margin-top: 24px; /* Add space above buttons */
+  gap: 16px; /* Add space between buttons */
+}
+
+/* Base button style */
+.button {
+  font-family: var(--font-sans);
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s, transform 0.1s;
+  font-weight: 500;
+  flex-grow: 1; /* Allow buttons to grow */
+}
+
+.button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Specific styles for Submit button */
+.submitButton {
+  background-color: #007bff; /* Blue */
+  color: white;
+}
+
+/* Specific styles for Clear button */
+.clearButton {
+  background-color: #dc3545; /* Red */
+  color: white;
+}
+
+/* Adjust button layout on smaller screens if needed */
+@media (max-width: 400px) {
+  .actionButtonsContainer {
+    flex-direction: column; /* Stack buttons vertically */
+  }
+}
