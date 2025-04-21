@@ -280,6 +280,8 @@ a.secondary {
 @media (max-width: 400px) {
   .actionButtonsContainer {
     flex-direction: column; /* Stack buttons vertically */
-    gap: 16px; /* Increased vertical gap */
+  }
+  .submitButton {
+    margin-bottom: 16px; /* Add margin below the submit button */
   }
 }
