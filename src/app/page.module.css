@@ -285,3 +285,72 @@ a.secondary {
     margin-bottom: 16px; /* Add margin below the submit button */
   }
 }
+
+/* --- Camera Modal Styles --- */
+.cameraOverlay {
+  position: fixed; /* Sit on top of the page content */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Black background with opacity */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Make sure it's above other content */
+}
+
+.cameraModal {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: hidden; /* Prevent content spill */
+}
+
+.cameraModal h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: var(--foreground);
+}
+
+.videoFeed {
+  width: 100%;
+  max-width: 500px; /* Limit video size */
+  height: auto;
+  border-radius: 4px;
+  background-color: #eee; /* Placeholder background */
+  margin-bottom: 15px;
+}
+
+.cameraControls {
+  display: flex;
+  justify-content: space-around; /* Space out buttons */
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* Reuse base button styles, add specific camera button styles */
+.captureButton {
+  background-color: #28a745; /* Green */
+  color: white;
+  margin-right: 10px; /* Space between capture and cancel */
+}
+
+.cancelButton {
+  background-color: #6c757d; /* Gray */
+  color: white;
+}
+
+.errorMessage {
+    color: #dc3545; /* Red for errors */
+    margin-top: 10px;
+    font-size: 0.9em;
+}
+
+/* --- End Camera Modal Styles --- */

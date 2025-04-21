@@ -169,20 +169,36 @@ export default function Home() {
           onChange={(e) => setScannedData(e.target.value)}
           placeholder="Scan barcode here..."
           className={styles.scanInput}
-          disabled={isCameraOpen} // Disable input while camera intends to be open
+          disabled={isCameraOpen} // Disable input while camera is open
         />
 
-        {/* Placeholder for where the camera modal will render */}
-        {/* We will add the actual modal structure in the next step */}
+        {/* Replace Placeholder with Actual Camera Modal */}
         {isCameraOpen && (
-           <div style={{ marginTop: '20px', padding: '20px', border: '1px solid red', background: 'lightyellow' }}>
-              <p>Camera UI Placeholder (Not Implemented Yet)</p>
-              <p>Processing: {barcodeToProcess}</p>
-              {/* Add placeholder buttons to test handlers */} 
-              <button onClick={handleCapture} style={{marginRight: '10px'}}>Capture (Not Implemented)</button>
-              <button onClick={handleCancel}>Cancel</button>
-              {error && <p style={{color: 'red'}}>Error: {error}</p>}
-           </div>
+          <div className={styles.cameraOverlay}> {/* Modal backdrop */} 
+            <div className={styles.cameraModal}> {/* Modal container */} 
+              <h3>Scan: {barcodeToProcess}</h3>
+              {/* Video element to display camera stream */} 
+              <video 
+                ref={videoRef} 
+                autoPlay 
+                playsInline 
+                className={styles.videoFeed}
+                // Muted is often recommended for autoplay policies
+                muted 
+              />
+              {/* Hidden canvas for capturing frames */} 
+              <canvas ref={canvasRef} style={{ display: 'none' }} /> 
+              
+              {/* Error display */} 
+              {error && <p className={styles.errorMessage}>Error: {error}</p>}
+              
+              {/* Camera control buttons */} 
+              <div className={styles.cameraControls}>
+                <button onClick={handleCapture} className={`${styles.button} ${styles.captureButton}`}>Capture</button>
+                <button onClick={handleCancel} className={`${styles.button} ${styles.cancelButton}`}>Cancel</button>
+              </div>
+            </div>
+          </div>
         )}
 
         <div className={styles.scanListContainer}>
@@ -191,9 +207,13 @@ export default function Home() {
             <p>No items scanned yet.</p>
           ) : (
             <ul className={styles.scanList}>
-              {/* Mapping already updated for object structure */}
+              {/* Update this mapping later to show barcode and image */}
               {scannedItems.map((item, index) => (
-                <li key={index}>{item.barcode} {item.image ? '(has image)' : ''}</li>
+                <li key={index}>
+                  <span>{item.barcode}</span>
+                  {/* Add image display later */}
+                  {item.image && <img src={item.image} alt={`Scan ${item.barcode}`} width="50" style={{marginLeft: '10px', verticalAlign: 'middle'}}/>}
+                </li>
               ))}
             </ul>
           )}
